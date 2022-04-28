@@ -120,6 +120,5 @@ def expm(A):
     Q = -U + V
 
     R = np.linalg.solve(P, Q)  # solve P = Q*R
-    expmA = matrix_2_power(R, n_squarings)
-    return expmA
+    return matrix_2_power(R, n_squarings)
 

@@ -168,26 +168,27 @@ class ChirpedContraDC():
 
 
     def getApodProfile(self):
-        if self.apod_profile is None:
-            z = np.arange(0,self.N_seg)
+        if self.apod_profile is not None:
+            return
+        z = np.arange(0,self.N_seg)
 
-            if self.apod_shape is "gaussian":
-                if self.a == 0:
-                    apod = self.kappa*np.ones(self.N_seg)
-                else:
-                    apod = np.exp(-self.a*(z - self.N_seg/2)**2 /self.N_seg**2)
-                    apod = (apod - min(apod))/(max(apod) - min(apod))
-                    apod *= self.kappa
-
-            elif self.apod_shape is "tanh":
-                z = np.arange(0, self.N_seg)
-                alpha, beta = 2, 3
-                apod = 1/2 * (1 + np.tanh(beta*(1-2*abs(2*z/self.N_seg)**alpha)))
-                apod = np.append(np.flip(apod[0:int(apod.size/2)]), apod[0:int(apod.size/2)])
+        if self.apod_shape is "gaussian":
+            if self.a == 0:
+                apod = self.kappa*np.ones(self.N_seg)
+            else:
+                apod = np.exp(-self.a*(z - self.N_seg/2)**2 /self.N_seg**2)
+                apod = (apod - min(apod))/(max(apod) - min(apod))
                 apod *= self.kappa
 
-            self.apod_profile = apod
-            return self
+        elif self.apod_shape is "tanh":
+            z = np.arange(0, self.N_seg)
+            alpha, beta = 2, 3
+            apod = 1/2 * (1 + np.tanh(beta*(1-2*abs(2*z/self.N_seg)**alpha)))
+            apod = np.append(np.flip(apod[:int(apod.size/2)]), apod[:int(apod.size/2)])
+            apod *= self.kappa
+
+        self.apod_profile = apod
+        return self
 
 
     def getChirpProfile(self):
@@ -221,7 +222,7 @@ class ChirpedContraDC():
 
 
         if self.T_profile is None:
-            if isinstance(self.T, float) or isinstance(self.T, int):
+            if isinstance(self.T, (float, int)):
                 self.T = [self.T] # convert to list
             self.T_profile = np.linspace(self.T[0],self.T[-1],self.N_seg)
 
@@ -415,12 +416,66 @@ class ChirpedContraDC():
         plt.title("Specifications", color=text_color)
         numElems = 6
         plt.axis([0,1,-numElems+1,1])
-        plt.text(0.5,-0,"N : " + str(self.N),fontsize=11,ha="center",va="bottom", color=text_color)
-        plt.text(0.5,-1,"N_seg : " + str(self.N_seg),fontsize=11,ha="center",va="bottom", color=text_color)
-        plt.text(0.5,-2,"a : " + str(self.a),fontsize=11,ha="center",va="bottom", color=text_color)
-        plt.text(0.5,-3,"p: " + str(self._period)+" nm",fontsize=11,ha="center",va="bottom", color=text_color)
-        plt.text(0.5,-4,"w1 : " + str(self._w1)+" nm",fontsize=11,ha="center",va="bottom", color=text_color)
-        plt.text(0.5,-5,"w2 : " + str(self._w2)+" nm",fontsize=11,ha="center",va="bottom", color=text_color)
+        plt.text(
+            0.5,
+            0,
+            f"N : {str(self.N)}",
+            fontsize=11,
+            ha="center",
+            va="bottom",
+            color=text_color,
+        )
+
+        plt.text(
+            0.5,
+            -1,
+            f"N_seg : {str(self.N_seg)}",
+            fontsize=11,
+            ha="center",
+            va="bottom",
+            color=text_color,
+        )
+
+        plt.text(
+            0.5,
+            -2,
+            f"a : {str(self.a)}",
+            fontsize=11,
+            ha="center",
+            va="bottom",
+            color=text_color,
+        )
+
+        plt.text(
+            0.5,
+            -3,
+            f"p: {str(self._period)} nm",
+            fontsize=11,
+            ha="center",
+            va="bottom",
+            color=text_color,
+        )
+
+        plt.text(
+            0.5,
+            -4,
+            f"w1 : {str(self._w1)} nm",
+            fontsize=11,
+            ha="center",
+            va="bottom",
+            color=text_color,
+        )
+
+        plt.text(
+            0.5,
+            -5,
+            f"w2 : {str(self._w2)} nm",
+            fontsize=11,
+            ha="center",
+            va="bottom",
+            color=text_color,
+        )
+
         plt.xticks([])
         plt.yticks([])
         plt.box(False)
@@ -430,14 +485,32 @@ class ChirpedContraDC():
         plt.title("Performance", color=text_color)
         numElems = len(self.performance)
         plt.axis([0,1,-numElems+1,1])
-        for i, item  in zip(range(len(self.performance)), self.performance):
-            plt.text(0.5,-i, item +" : ", fontsize=11, ha="right", va="bottom", color=text_color)
-            plt.text(0.5,-i, str(self.performance[item][0])+" "+self.performance[item][1], fontsize=11, ha="left", va="bottom", color=text_color)
+        for i, item in zip(range(len(self.performance)), self.performance):
+            plt.text(
+                0.5,
+                -i,
+                f"{item} : ",
+                fontsize=11,
+                ha="right",
+                va="bottom",
+                color=text_color,
+            )
+
+            plt.text(
+                0.5,
+                -i,
+                f"{str(self.performance[item][0])} {self.performance[item][1]}",
+                fontsize=11,
+                ha="left",
+                va="bottom",
+                color=text_color,
+            )
+
         plt.xticks([])
         plt.yticks([])
         plt.box(False)
 
-        
+
         plt.subplot(grid[2:,1:])
         plt.plot(self.wavelength*1e9, self.thru, label="Thru port")
         plt.plot(self.wavelength*1e9, self.drop, label="Drop port")
@@ -533,7 +606,8 @@ class ChirpedContraDC():
         data = np.round(data, 3)
 
         if fileName == "auto":
-            fileName = str(self.apod_shape)+"_N_"+str(self.N)+"_p_"+str(round(self.period_profile[0]*1e9))+"_"+str(round(self.period_profile[-1]*1e9))+"_Nseg_"+str(self.N_seg)
-        
-        np.savetxt("Designs/"+fileName+".txt", data, fmt="%4.3f")
+            fileName = f"{str(self.apod_shape)}_N_{str(self.N)}_p_{str(round(self.period_profile[0]*1e9))}_{str(round(self.period_profile[-1]*1e9))}_Nseg_{str(self.N_seg)}"
+
+
+        np.savetxt(f"Designs/{fileName}.txt", data, fmt="%4.3f")
 

@@ -102,9 +102,7 @@ class ChirpedContraDC():
 		H2 = np.matmul(P_FG,np.linalg.matrix_power(P_GG,-1))
 		H3 = np.matmul(-np.linalg.matrix_power(P_GG,-1),P_GF)
 		H4 = np.linalg.matrix_power(P_GG,-1)
-		H = np.vstack((np.hstack((H1,H2)),np.hstack((H3,H4))))
-
-		return H
+		return np.vstack((np.hstack((H1,H2)),np.hstack((H3,H4))))
 
 	# Swap columns of a given array
 	def swap_cols(self, arr, frm, to):
@@ -176,13 +174,25 @@ class ChirpedContraDC():
 			p3n2 = self.n2_profile[-1,:]
 
 			plt.figure()
-			plt.plot(range(self.N_seg),p1n1,"b-",label="n1, "+str(self.wavelength[0]))
-			plt.plot(range(self.N_seg),p2n1,"b--",label="n1, "+str(round(self.wavelength[round(self.resolution/2)],8)))
-			plt.plot(range(self.N_seg),p3n1,"b-.",label="n1, "+str(self.wavelength[-1]))
+			plt.plot(range(self.N_seg), p1n1, "b-", label=f"n1, {str(self.wavelength[0])}")
+			plt.plot(
+			    range(self.N_seg),
+			    p2n1,
+			    "b--",
+			    label=f"n1, {str(round(self.wavelength[round(self.resolution/2)],8))}",
+			)
+			plt.plot(
+			    range(self.N_seg), p3n1, "b-.", label=f"n1, {str(self.wavelength[-1])}")
 
-			plt.plot(range(self.N_seg),p1n2,"r-",label="n2, "+str(self.wavelength[0]))
-			plt.plot(range(self.N_seg),p2n2,"r--",label="n2, "+str(round(self.wavelength[round(self.resolution/2)],8)))
-			plt.plot(range(self.N_seg),p3n2,"r-.",label="n2, "+str(self.wavelength[-1]))
+			plt.plot(range(self.N_seg), p1n2, "r-", label=f"n2, {str(self.wavelength[0])}")
+			plt.plot(
+			    range(self.N_seg),
+			    p2n2,
+			    "r--",
+			    label=f"n2, {str(round(self.wavelength[round(self.resolution/2)],8))}",
+			)
+			plt.plot(
+			    range(self.N_seg), p3n2, "r-.", label=f"n2, {str(self.wavelength[-1])}")
 
 			plt.legend()
 			plt.xlabel("Segment number")
@@ -213,7 +223,7 @@ class ChirpedContraDC():
 
 		# 	n_profile = np.linspace(0,self.N_seg,profile.size)
 		# 	profile = np.interp(n_apodization, n_profile, profile)
-			    
+
 
 		# 	kappaMin = 0 #self.kappa*profile[0]
 		# 	kappaMax = self.kappa
@@ -223,7 +233,7 @@ class ChirpedContraDC():
 		# 	self.apod_profile[0] = 0
 		# 	self.apod_profile[-1] = 0
 		self.l_seg = np.repeat(self.N/self.N_seg*self.period, self.N_seg)
-		
+
 		if self.apod_shape is "gaussian":
 			ApoFunc=np.exp(-np.linspace(0,1,num=1000)**2)     #Function used for apodization (window function)
 			mirror = False                #makes the apodization function symetrical
@@ -243,7 +253,7 @@ class ChirpedContraDC():
 
 				n_profile = np.linspace(0,self.N_seg,profile.size)
 				profile = np.interp(n_apodization, n_profile, profile)
-				    
+
 
 				kappaMin = 0 #self.kappa*profile[0]
 				kappaMax = self.kappa
@@ -257,7 +267,7 @@ class ChirpedContraDC():
 			z = np.arange(0, self.N_seg)
 			alpha, beta = 1, 3
 			apod = 1/2 * (1 + np.tanh(beta*(1-2*abs(2*z/self.N_seg)**alpha)))
-			apod = np.append(np.flip(apod[0:int(apod.size/2)]), apod[0:int(apod.size/2)])
+			apod = np.append(np.flip(apod[:int(apod.size/2)]), apod[:int(apod.size/2)])
 			apod *= self.kappa
 
 			self.apod_profile = apod
@@ -267,17 +277,15 @@ class ChirpedContraDC():
 
 	# This creates a regression to estimate the reflection wavelength
 	# (Only used to get parameters in optimizeParams)
-	def estimate_wvl(period, dw):
-	
+	def estimate_wvl(self, dw):
+
 		periods = np.arange(310e-9,330e-9,2e-9)
 		lam_p = 1e-9*np.array([1526.7, 1532.7, 1538.2, 1543.6, 1549.7, 1555.8, 1561.2, 1566.7, 1572.7, 1578.2, 1583.6])
 		lam = 1e-9*np.array([1560.5, 1561.7, 1563. , 1564.4, 1565.6, 1566.8, 1568., 1569.2, 1570.5, 1571.7, 1572.9])
 		d_w = np.array([-1.00000000e-08, -8.00000000e-09, -6.00000000e-09, -4.00000000e-09, -2.00000000e-09, -5.29395592e-23,  2.00000000e-09,  4.00000000e-09, 6.00000000e-09,  8.00000000e-09,  1.00000000e-08])
 		dlam_dp, p_0 = np.polyfit(periods, lam_p, 1)
 		dlam_dw, w_0 = np.polyfit(d_w, lam, 1)
-		wvl = dlam_dp*period + p_0 + dlam_dw*dw
-
-		return wvl
+		return dlam_dp * self + p_0 + dlam_dw*dw
 
 
 	# This finds optimal period and widths combination for a targeted ref. wavelength
@@ -343,34 +351,31 @@ class ChirpedContraDC():
 
 	def chirpIsKnown(self):
 
-		ID = str(self.N_seg) + "_"  \
-		+str(int(self.target_wvl[0]*1e9)) \
-			+ "_" + str(int(self.target_wvl[-1]*1e9))
+		ID = (
+		    (f"{str(self.N_seg)}_" + str(int(self.target_wvl[0] * 1e9))) + "_") + str(
+		        int(self.target_wvl[-1] * 1e9))
 
-		if os.path.exists("Database/Chirp_profiles/"+ID+".txt"):
-			return True
-
-		else:
-			return False
+		return bool(os.path.exists(f"Database/Chirp_profiles/{ID}.txt"))
 
 
 	def saveChirp(self):	
 
-		ID = str(self.N_seg) + "_"  \
-			+str(int(self.target_wvl[0]*1e9)) \
-			+ "_" + str(int(self.target_wvl[-1]*1e9))
+		ID = (
+		    (f"{str(self.N_seg)}_" + str(int(self.target_wvl[0] * 1e9))) + "_") + str(
+		        int(self.target_wvl[-1] * 1e9))
 
-		with open("Database/Chirp_profiles/"+ID+".txt", "w") as file:
+		with open(f"Database/Chirp_profiles/{ID}.txt", "w") as file:
 			np.savetxt(file, (self.period_profile, self.w1_profile, self.w2_profile))
 
 
 	def fetchChirp(self):
 
-		ID = str(self.N_seg) + "_"  \
-		+str(int(self.target_wvl[0]*1e9)) \
-		+ "_" + str(int(self.target_wvl[-1]*1e9))
+		ID = (
+		    (f"{str(self.N_seg)}_" + str(int(self.target_wvl[0] * 1e9))) + "_") + str(
+		        int(self.target_wvl[-1] * 1e9))
 
-		self.period_profile, self.w1_profile, self.w2_profile = np.loadtxt("Database/Chirp_profiles/"+ID+".txt")
+		self.period_profile, self.w1_profile, self.w2_profile = np.loadtxt(
+		    f"Database/Chirp_profiles/{ID}.txt")
 
 
 	# This finds the best chirp profile to smoothly scan reflection wavelengths

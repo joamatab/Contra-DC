@@ -53,18 +53,16 @@ class ChripedContraDC():
 
 	# Useful array manipulation
 	def switchTop(self, P):
-	    P_FF = np.asarray([[P[0][0],P[0][1]],[P[1][0],P[1][1]]])
-	    P_FG = np.asarray([[P[0][2],P[0][3]],[P[1][2],P[1][3]]])
-	    P_GF = np.asarray([[P[2][0],P[2][1]],[P[3][0],P[3][1]]])
-	    P_GG = np.asarray([[P[2][2],P[2][3]],[P[3][2],P[3][3]]])
-	    
-	    H1 = P_FF-np.matmul(np.matmul(P_FG,np.linalg.matrix_power(P_GG,-1)),P_GF)
-	    H2 = np.matmul(P_FG,np.linalg.matrix_power(P_GG,-1))
-	    H3 = np.matmul(-np.linalg.matrix_power(P_GG,-1),P_GF)
-	    H4 = np.linalg.matrix_power(P_GG,-1)
-	    H = np.vstack((np.hstack((H1,H2)),np.hstack((H3,H4))))
-	    
-	    return H
+		P_FF = np.asarray([[P[0][0],P[0][1]],[P[1][0],P[1][1]]])
+		P_FG = np.asarray([[P[0][2],P[0][3]],[P[1][2],P[1][3]]])
+		P_GF = np.asarray([[P[2][0],P[2][1]],[P[3][0],P[3][1]]])
+		P_GG = np.asarray([[P[2][2],P[2][3]],[P[3][2],P[3][3]]])
+
+		H1 = P_FF-np.matmul(np.matmul(P_FG,np.linalg.matrix_power(P_GG,-1)),P_GF)
+		H2 = np.matmul(P_FG,np.linalg.matrix_power(P_GG,-1))
+		H3 = np.matmul(-np.linalg.matrix_power(P_GG,-1),P_GF)
+		H4 = np.linalg.matrix_power(P_GG,-1)
+		return np.vstack((np.hstack((H1,H2)),np.hstack((H3,H4))))
 
 	# Swap columns of a given array
 	def swap_cols(self, arr, frm, to):
@@ -80,8 +78,7 @@ class ChripedContraDC():
 		f = 2*math.pi / beta	# Phase match condition
 		minimum = min(abs(f-np.mean(self.period)))
 		idx = np.where(abs(f-np.mean(self.period)) == minimum)
-		betaWav = self.wavelength.item(idx[0][0])
-		return betaWav
+		return self.wavelength.item(idx[0][0])
 
 	def getApodProfile(self):
 		pass

@@ -98,7 +98,7 @@ class ChirpedContraDC():
 		if self.N%self.N_seg:
 			print("Number of periods (N) should be an integer multiple of the number of segments (N_seg).")
 			self.N_seg = 50
-			print("Number of segments was changed to "+str(self.N_seg)+".")
+			print(f"Number of segments was changed to {self.N_seg}.")
 
 
 
@@ -113,9 +113,7 @@ class ChirpedContraDC():
 		H2 = np.matmul(P_FG,np.linalg.matrix_power(P_GG,-1))
 		H3 = np.matmul(-np.linalg.matrix_power(P_GG,-1),P_GF)
 		H4 = np.linalg.matrix_power(P_GG,-1)
-		H = np.vstack((np.hstack((H1,H2)),np.hstack((H3,H4))))
-
-		return H
+		return np.vstack((np.hstack((H1,H2)),np.hstack((H3,H4))))
 
 	# Swap columns of a given array
 	def swap_cols(self, arr, frm, to):
@@ -187,13 +185,25 @@ class ChirpedContraDC():
 			p3n2 = self.n2_profile[-1,:]
 
 			plt.figure()
-			plt.plot(range(self.N_seg),p1n1,"b-",label="n1, "+str(self.wavelength[0]))
-			plt.plot(range(self.N_seg),p2n1,"b--",label="n1, "+str(round(self.wavelength[round(self.resolution/2)],8)))
-			plt.plot(range(self.N_seg),p3n1,"b-.",label="n1, "+str(self.wavelength[-1]))
+			plt.plot(range(self.N_seg), p1n1, "b-", label=f"n1, {str(self.wavelength[0])}")
+			plt.plot(
+			    range(self.N_seg),
+			    p2n1,
+			    "b--",
+			    label=f"n1, {str(round(self.wavelength[round(self.resolution/2)],8))}",
+			)
+			plt.plot(
+			    range(self.N_seg), p3n1, "b-.", label=f"n1, {str(self.wavelength[-1])}")
 
-			plt.plot(range(self.N_seg),p1n2,"r-",label="n2, "+str(self.wavelength[0]))
-			plt.plot(range(self.N_seg),p2n2,"r--",label="n2, "+str(round(self.wavelength[round(self.resolution/2)],8)))
-			plt.plot(range(self.N_seg),p3n2,"r-.",label="n2, "+str(self.wavelength[-1]))
+			plt.plot(range(self.N_seg), p1n2, "r-", label=f"n2, {str(self.wavelength[0])}")
+			plt.plot(
+			    range(self.N_seg),
+			    p2n2,
+			    "r--",
+			    label=f"n2, {str(round(self.wavelength[round(self.resolution/2)],8))}",
+			)
+			plt.plot(
+			    range(self.N_seg), p3n2, "r-.", label=f"n2, {str(self.wavelength[-1])}")
 
 			plt.legend()
 			plt.xlabel("Segment number")

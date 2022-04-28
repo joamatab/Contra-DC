@@ -270,7 +270,7 @@ class ContraDC():
             z = np.arange(0, self.N_seg)
             alpha, beta = 2, 3
             apod = 1/2 * (1 + np.tanh(beta*(1-2*abs(2*z/self.N_seg)**alpha)))
-            apod = np.append(np.flip(apod[0:int(apod.size/2)]), apod[0:int(apod.size/2)])
+            apod = np.append(np.flip(apod[:int(apod.size/2)]), apod[:int(apod.size/2)])
             apod *= self.kappa
 
         self.apod_profile = apod
@@ -316,7 +316,7 @@ class ContraDC():
 
         # temperature chirp
         if self.T_profile is None:
-            if isinstance(self.T, float) or isinstance(self.T, int):
+            if isinstance(self.T, (float, int)):
                 self.T = [self.T] # convert to list
             self.T_profile = np.linspace(self.T[0],self.T[-1],self.N_seg)
 
